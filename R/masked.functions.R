@@ -4,7 +4,7 @@ eval <- function(expr, envir, enclos) {
         stop('Tried to leave sandboxed environment.')
 
     e <- parent.frame()
-    sandbox(deparse(substitute(expr)), e)
+    sandbox(base::deparse(substitute(expr)), e)
 
 }
 
@@ -32,7 +32,7 @@ assign <- function(x, value, ...) {
     if (!is.null(mc$envir) | !is.null(mc$pos))
         stop('Tried to leave sandboxed environment.')
 
-    sandbox.pretest(deparse(substitute(value)))
+    sandbox.pretest(base::deparse(substitute(value)))
 
     mc[[1]] <- quote(base::assign)
     mc$pos <- parent.frame()
@@ -69,7 +69,7 @@ library <- function(...) {
 
     if (!is.null(mc$package)) {
         if (!is.character(mc$package))
-            mc$package <- deparse(mc$package)
+            mc$package <- base::deparse(mc$package)
         if (!mc$package %in% names(commands.blacklist()))
             stop('Tried to load a forbidden package.')
     } else {
@@ -92,7 +92,7 @@ require <- function(...) {
         stop('Tried to leave sandboxed environment.')
      if (!is.null(mc$package)) {
         if (!is.character(mc$package))
-            mc$package <- deparse(mc$package)
+            mc$package <- base::deparse(mc$package)
         if (!mc$package %in% names(commands.blacklist()))
             stop('Tried to load a forbidden package.')
     } else {
@@ -146,11 +146,12 @@ options <- function(...) {
     }
 
     if (length(names(l)) == 0) {
-
         l <- unlist(l)
         if (any(l %in% disabled.options))
             stop('Not available option(s) queried.')
-        return(base::getOption(l))
+        # this used to be getOption(l) but I don't see how
+        # that could possibly work (Ritesh april fools)
+        return(disabled.options)
 
     }
 
@@ -159,7 +160,7 @@ options <- function(...) {
 
     mc <- match.call(base::options)
     mc[[1]] <- quote(base::options)
-    mc[[2]] <- sandbox(deparse(mc[[2]]), parent.frame())
+    mc[[2]] <- sandbox(base::deparse(mc[[2]]), parent.frame())
     res <- base::eval(mc, parent.frame())
 
     return(invisible(res))

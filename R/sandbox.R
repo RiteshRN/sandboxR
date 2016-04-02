@@ -41,11 +41,9 @@ sandbox.pretest <- function(src, blacklist = as.character(unlist(commands.blackl
         stop('Nothing provided to check.')
 
     ## parse elements of src
-    f <- textConnection(src)
-    src.r <- suppressWarnings(tryCatch(parser(f), error = function(e) NULL))
-    close(f)
-    if (is.null(nrow(attr(src.r, 'data'))))
-        stop(paste0('Parsing command (`', src, '`) failed, possible syntax error.'))
+    src.r <- suppressWarnings(tryCatch(base::parse(text = src), error = function(e) NULL))
+    if (is.null(nrow(getParseData(src.r))))
+        stop(paste0('Parsing command 1 (`', src, '`) failed, possible syntax error.'))
     p       <- attr(src.r, 'data')
     calls   <- sort(unique(p$text[which(p$token.desc == 'SYMBOL_FUNCTION_CALL')]))
     strings <- sort(unique(p$text[which(p$token.desc == 'STR_CONST')]))
@@ -73,13 +71,11 @@ sandbox.pretest <- function(src, blacklist = as.character(unlist(commands.blackl
     p <- base::parse(text = src)
     lapply(p, function(c) {
 
-        d <- deparse(c)
-        t <- textConnection(d)
-        s <- suppressWarnings(tryCatch(parser(t), error = function(e) NULL))
-        close(t)
-        if (is.null(nrow(attr(s, 'data'))))
-            stop(paste0('Parsing command (`', d, '`) failed, possible syntax error.'))
-        l <- attr(s, 'data')
+        d <- base::deparse(c)
+        s <- suppressWarnings(tryCatch(base::parse(text = d), error = function(e) NULL))
+        if (is.null(nrow(getParseData(s))))
+            stop(paste0('Parsing command 2 (`', d, '`) failed, possible syntax error.'))
+        l <- getParseData(s)
         f <- which(l$token.desc == 'SYMBOL_FUNCTION_CALL')
         calls <- l$text[f]
 
@@ -144,7 +140,7 @@ sandbox <- function(src, envir, time.limit = 10) {
     ## evaluate per expression and check
     res <- lapply(p, function(x) {
 
-        sandbox.pretest(deparse(x), envir = envir)
+        sandbox.pretest(base::deparse(x), envir = envir)
         res <- tryCatch(base::eval(x, envir = envir), error = function(e) e)
 
         if (any(class(res) == 'error'))
