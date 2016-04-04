@@ -10,7 +10,6 @@ Author: Gergely Daróczi <gergely@snowl.net>
 Version: 0.1
 Date: 2016-04-01
 Collate:
-    'masked.functions.R'
     'sandbox.R'
     'sandboxR.R'
     'blacklist.R'

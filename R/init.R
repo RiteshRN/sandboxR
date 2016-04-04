@@ -1,6 +1,4 @@
-.onLoad <- function(libname, pkgname)
-{
-    ## forbidden options
-    base::options('sandboxR.disabled.options' = 'sandboxR.disabled.options')
-
+.onLoad <- function(libname, pkgname) {
+  # Forbidden options
+  base::options('sandboxR.disabled.options' = 'sandboxR.disabled.options')
 }
