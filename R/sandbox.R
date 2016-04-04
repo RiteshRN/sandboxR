@@ -113,7 +113,6 @@ sandbox.pretest <- function(src, blacklist = as.character(unlist(commands.blackl
 #' Eval in sandbox
 #' @param src character vector of R commands
 #' @param envir the environment where the calls would be tested. This should be omitted or preset with \code{\link{sandbox.env}}.
-#' @param time.limit limit on the elapsed time while running \code{src}
 #' @examples \dontrun{
 #' sandbox('paste(rev(c(")", "whatever", "(", "m", "e", "t", "s", "y", "s")), sep = "", collapse = "")')
 #' sandbox('get(paste("","y", "tem", sep="s"))("whoami")')
@@ -123,16 +122,13 @@ sandbox.pretest <- function(src, blacklist = as.character(unlist(commands.blackl
 #' sandbox('lm("as.numeric(system(\'ls -la | wc -l\', intern=T)) ~ 1")')
 #' }
 #' @export
-sandbox <- function(src, envir, time.limit = 10) {
+sandbox <- function(src, envir) {
 
     if (missing(envir))
         envir <- sandbox.env()
 
     ## saving global options
     opts.bak <- options()
-
-    ## check elapsed time
-    setTimeLimit(elapsed = time.limit)
 
     ## parse expressions
     p <- base::parse(text = src)
@@ -152,8 +148,6 @@ sandbox <- function(src, envir, time.limit = 10) {
 
     ## setting back global options and removing time limit
     options(opts.bak)
-    setTimeLimit(elapsed = Inf)
-
     return(res)
 
 }
